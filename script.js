@@ -158,7 +158,7 @@ const pasteIntoSearchBox = async (state) => {
     if (!pasteSuccess) {
       // If paste is blocked, notify the user to paste manually
       updateStatus(
-        "Looks like we're blocked from pasting into the search box. Please hit CMD+V to paste it, and then hit Enter."
+        "Your clipboard now has the necessary search term. Please tap CMD+V for MacOS, or CTRL+V for Windows to paste it, and then hit Enter."
       );
 
       // Wait for both manual paste and "Enter" key press
@@ -519,9 +519,7 @@ const processState = async (state) => {
       }
 
       for (const button of messageButtonsToClick) {
-        console.log("clicking message button: ", button);
         button.click();
-        console.log("clicked message button: ", button);
         await delayMS(2000);
 
         updateStatus(`Inserting message template for ${state}...`);
