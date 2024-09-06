@@ -29,9 +29,9 @@
 //    - For Mac: CMD+OPT+I
 //    - For Windows: CTRL+SHIFT+I
 // 3. Click on the "Console" tab.
-// 4. Ensure "Enable User Gesture" is checked (if required by your browser).
+// 4. (Safari-only) Ensure "Enable User Gesture" is checked.
+//    (Chrome-only) In the console, type "allow pasting" and hit enter.
 // 5. Paste the script into the console and hit enter.
-//    - In Chrome, it may prompt you to type "allow paste" and hit enter.
 // 6. Follow the on-screen instructions to send messages.
 //    - You can close the tab or refresh the page to stop the script at any time.
 
@@ -158,7 +158,7 @@ const pasteIntoSearchBox = async (state) => {
     if (!pasteSuccess) {
       // If paste is blocked, notify the user to paste manually
       updateStatus(
-        "Your clipboard now has the necessary search term. Please tap CMD+V for MacOS, or CTRL+V for Windows to paste it, and then hit Enter."
+        "Now press CMD+V or CTRL+V, and then hit Enter. This is the only manual step required."
       );
 
       // Wait for both manual paste and "Enter" key press
