@@ -4,6 +4,20 @@
 // friends who live in key swing states during elections. It automates the process
 // of finding friends in these states and prepares a message for you to send manually.
 
+// CONFIGURATION OPTIONS:
+// ------------
+const STATES = [
+  "Pennsylvania",
+  "Georgia",
+  "Arizona",
+  "Michigan",
+  "Nevada",
+  "North Carolina",
+  "Wisconsin",
+];
+
+const MESSAGE_TEMPLATE = "Hi! Are you living in {state}? I'm reaching out to friends who live there to promote voter participation this November. Are you registered to vote?";
+
 // HOW IT WORKS
 // ------------
 // The script simulates user interactions on Facebook to identify your friends
@@ -35,26 +49,14 @@
 // 6. Follow the on-screen instructions to send messages.
 //    - You can close the tab or refresh the page to stop the script at any time.
 
-// CONFIGURATION OPTIONS:
-// ------------
-// You can modify which states to target.
-const STATES = [
-  "Pennsylvania",
-  "Georgia",
-  "Arizona",
-  "Michigan",
-  "Nevada",
-  "North Carolina",
-  "Wisconsin",
-];
-
-// You can modify the default message template.
-const getMessageTemplate = (state) => {
-  return `Hi! Are you living in ${state}? I'm reaching out to friends who live there to promote voter participation this November. Are you registered to vote?`;
-};
 
 // UTILITY FUNCTIONS
 // ------------
+
+// Interpolates the state into the message template
+const getMessageTemplate = (state) => {
+  return MESSAGE_TEMPLATE.replace("{state}", state);
+};
 
 // Finds elements on the page
 const getElement = (selector) => document.querySelector(selector);
