@@ -528,7 +528,11 @@ const processState = async (state) => {
 
         const messageTemplate = getMessageTemplate(state);
         await retry(
-          () => insertText('div[contenteditable="true"]', messageTemplate),
+          () =>
+            insertText(
+              'div[contenteditable="true"][aria-placeholder="Aa"]',
+              messageTemplate
+            ),
           5,
           500,
           `Message template inserted. Either send this message or close the chat to move on.`
