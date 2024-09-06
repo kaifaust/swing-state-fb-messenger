@@ -217,7 +217,7 @@ const createStatusContainer = () => {
   container.id = "statusContainer";
   Object.assign(container.style, {
     position: "fixed",
-    bottom: "20px",
+    top: "40px",
     left: "50%",
     transform: "translateX(-50%)",
     backgroundColor: "#f4f6f9",
