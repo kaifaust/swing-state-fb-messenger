@@ -158,7 +158,7 @@ const pasteIntoSearchBox = async (state) => {
     if (!pasteSuccess) {
       // If paste is blocked, notify the user to paste manually
       updateStatus(
-        "Now press CMD+V or CTRL+V, and then hit Enter. This is the only manual step required."
+        `Press ${navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? "CMD+V" : "CTRL+V"}, then Enter. That's it!`
       );
 
       // Wait for both manual paste and "Enter" key press
