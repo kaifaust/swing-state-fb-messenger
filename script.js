@@ -332,7 +332,11 @@ const createCopyButton = (text, onSuccess) => {
 
   const button = document.createElement("button");
   button.id = "copyButton";
-  button.innerText = `Continue`;
+  const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
+
+  // Change button text based on browser (Chrome-specific behavior)
+  button.innerText = isChrome ? "Copy to Clipboard" : "Continue";
+
   button.style.marginTop = "10px";
   button.style.padding = "8px 20px";
   button.style.borderRadius = "5px";
@@ -376,12 +380,16 @@ const createCopyButton = (text, onSuccess) => {
   statusContainer.appendChild(button);
 
   button.onclick = async () => {
-    const success = await copyToClipboard(`lives in ${text}`);
-    if (success) {
-      button.remove();
-      onSuccess();
+    if (isChrome) {
+      const success = await copyToClipboard(`lives in ${text}`);
+      if (success) {
+        button.remove();
+        onSuccess();
+      } else {
+        updateStatus("Failed to copy to clipboard. Please try again.");
+      }
     } else {
-      updateStatus("Failed to copy to clipboard. Please try again.");
+      onSuccess();
     }
   };
 };
