@@ -31,6 +31,7 @@
 // 3. Click on the "Console" tab.
 // 4. Ensure "Enable User Gesture" is checked (if required by your browser).
 // 5. Paste the script into the console and hit enter.
+//    - In Chrome, it may prompt you to type "allow paste" and hit enter.
 // 6. Follow the on-screen instructions to send messages.
 //    - You can close the tab or refresh the page to stop the script at any time.
 
@@ -142,6 +143,68 @@ const navigateToHomePage = async () => {
     homeLink.click();
     return true;
   }
+  return false;
+};
+
+// Paste into the Facebook search box or prompt user for manual paste and Enter
+const pasteIntoSearchBox = async (state) => {
+  const input = getElement('input[aria-label="Search Facebook"]');
+  if (input) {
+    input.focus();
+
+    // Try to paste automatically
+    const pasteSuccess = document.execCommand("paste");
+
+    if (!pasteSuccess) {
+      // If paste is blocked, notify the user to paste manually
+      updateStatus(
+        "Looks like we're blocked from pasting into the search box. Please hit CMD+V to paste it, and then hit Enter."
+      );
+
+      // Wait for both manual paste and "Enter" key press
+      return new Promise((resolve) => {
+        let pasteDetected = false;
+        let enterPressed = false;
+
+        const onInputEvent = () => {
+          // Detect if the correct text has been pasted
+          if (input.value.includes(`lives in ${state}`)) {
+            pasteDetected = true;
+            checkProceed();
+          }
+        };
+
+        const onKeydownEvent = (event) => {
+          // Detect when Enter is pressed
+          if (event.key === "Enter") {
+            enterPressed = true;
+            checkProceed();
+          }
+        };
+
+        const checkProceed = () => {
+          // Proceed only if both paste and Enter are detected
+          if (pasteDetected && enterPressed) {
+            input.removeEventListener("input", onInputEvent);
+            input.removeEventListener("keydown", onKeydownEvent);
+            resolve(true);
+          }
+        };
+
+        // Add event listeners to detect manual paste and Enter key press
+        input.addEventListener("input", onInputEvent);
+        input.addEventListener("keydown", onKeydownEvent);
+      });
+    }
+
+    // If automatic paste works, simulate pressing Enter automatically
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(
+      new KeyboardEvent("keydown", { bubbles: true, key: "Enter" })
+    );
+    return true;
+  }
+
   return false;
 };
 
@@ -346,56 +409,52 @@ const updateStatus = (message) => {
 // Processes states and autopopulates message templates
 // ----------
 // Keeps track of which state we're currently processing
-let currentIndex = 0; 
+let currentIndex = 0;
 
 const processState = async (state) => {
   updateStatus(
     `This script is about to search for friends in ${state} and autopopulate message templates... It will be up to you to actually send the messages. Ready?`
   );
 
-  // Show button for manual clipboard copy
   createCopyButton(state, async () => {
     updateStatus(`Pasting text for ${state}...`);
+
+    // Ensure search input is available
     const input = await retry(
       () => getElement('input[aria-label="Search Facebook"]'),
       5,
       500,
       `Looking for search box for ${state}...`
     );
+
     if (!input) return updateStatus(`Input not found for ${state}`);
 
-    console.log(`Attempting to focus on search box input for ${state}`);
-    input.focus();
-    console.log(`Focused on search box input for ${state}`);
+    console.log(`Attempting to paste into search box for ${state}`);
 
-    console.log(`Attempting to paste into search box input for ${state}`);
-    document.execCommand("paste");
-    console.log(`Pasted into search box input for ${state}`);
+    // Try to paste, or prompt the user for manual paste and Enter key press
+    const pasteResult = await pasteIntoSearchBox(state);
 
-    await retry(
-      () => {
-        input.dispatchEvent(
-          new KeyboardEvent("keydown", { bubbles: true, keyCode: 13 })
-        );
-      },
-      5,
-      500,
-      `Searching for ${state}...`
-    );
+    if (!pasteResult) {
+      return; // Stop further execution if the paste failed or is not completed
+    }
 
+    await delayMS(1000);
     await retry(
       () => {
         const peopleSpan = [...document.querySelectorAll("span")].find(
           (span) => span.textContent === "People"
         );
-        peopleSpan?.closest("a")?.click();
-        return !!peopleSpan;
+        if (peopleSpan) {
+          peopleSpan.closest("a")?.click();
+          return true;
+        }
+        return false;
       },
       5,
       500,
       `Clicking People for ${state}...`
     );
-
+    
     updateStatus(`Looking for Friends option for ${state}...`);
     await retry(
       () => {
@@ -428,38 +487,60 @@ const processState = async (state) => {
 
     updateStatus(`Looking for Message buttons for ${state}...`);
     await delayMS(3000);
-    const feedDiv = getElement('div[role="feed"]');
-    if (!feedDiv) return updateStatus(`Feed not found for ${state}`);
 
-    const searchResults = [...feedDiv.children];
-    const messageButtonsToClick = [];
+    // Look for the feed div inside the "Search results" div
+    const searchResultsDiv = getElement('div[aria-label="Search results"]');
+    if (searchResultsDiv) {
+      const feedDiv = searchResultsDiv.querySelector('div[role="feed"]');
+      console.log("feed div: ", feedDiv);
 
-    for (const resultDiv of searchResults) {
-      if (livesInState(resultDiv, state)) {
-        const messageButton = resultDiv.querySelector(
-          'div[aria-label="Message"][role="button"]'
-        );
-        if (messageButton) {
-          messageButtonsToClick.push(messageButton);
+      if (!feedDiv) {
+        console.log("Feed not found");
+        return updateStatus(`Feed not found for ${state}`);
+      }
+
+      console.log("Feed found, checking for message buttons...");
+
+      const searchResults = [...feedDiv.children];
+      console.log("search results: ", searchResults);
+      const messageButtonsToClick = [];
+
+      for (const resultDiv of searchResults) {
+        console.log("result div: ", resultDiv);
+        if (livesInState(resultDiv, state)) {
+          const messageButton = resultDiv.querySelector(
+            'div[aria-label="Message"][role="button"]'
+          );
+          if (messageButton) {
+            console.log("message button found: ", messageButton);
+            messageButtonsToClick.push(messageButton);
+          }
         }
       }
-    }
 
-    for (const button of messageButtonsToClick) {
-      button.click();
-      await delayMS(1000);
+      for (const button of messageButtonsToClick) {
+        console.log("clicking message button: ", button);
+        button.click();
+        console.log("clicked message button: ", button);
+        await delayMS(2000);
 
-      const messageTemplate = getMessageTemplate(state);
-      await retry(
-        () => insertText('div[contenteditable="true"]', messageTemplate),
-        5,
-        500,
-        `Message template inserted. Either send this message or close the chat to move on.`
-      );
+        updateStatus(`Inserting message template for ${state}...`);
 
-      await waitForChatClose();
+        const messageTemplate = getMessageTemplate(state);
+        await retry(
+          () => insertText('div[contenteditable="true"]', messageTemplate),
+          5,
+          500,
+          `Message template inserted. Either send this message or close the chat to move on.`
+        );
 
-      updateStatus(`Loading next message template...`);
+        await waitForChatClose();
+
+        updateStatus(`Loading next message template...`);
+      }
+    } else {
+      console.log("Search results div not found");
+      return updateStatus(`Search results not found for ${state}`);
     }
 
     updateStatus(`Finished sending messages for ${state}.`);
@@ -475,6 +556,7 @@ const processState = async (state) => {
     }
   });
 };
+
 
 // INITIALIZATION
 // --------------
