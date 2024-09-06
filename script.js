@@ -382,16 +382,12 @@ const createCopyButton = (text, onSuccess) => {
   statusContainer.appendChild(button);
 
   button.onclick = async () => {
-    if (isChrome) {
-      const success = await copyToClipboard(`lives in ${text}`);
-      if (success) {
+    const success = await copyToClipboard(`lives in ${text}`);
+    if (success) {
         button.remove();
         onSuccess();
-      } else {
-        updateStatus("Failed to copy to clipboard. Please try again.");
-      }
     } else {
-      onSuccess();
+        updateStatus("Failed to copy to clipboard. Please try again.");
     }
   };
 };
