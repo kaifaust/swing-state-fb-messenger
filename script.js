@@ -454,7 +454,7 @@ const processState = async (state) => {
       500,
       `Clicking People for ${state}...`
     );
-    
+
     updateStatus(`Looking for Friends option for ${state}...`);
     await retry(
       () => {
@@ -558,7 +558,6 @@ const processState = async (state) => {
     }
   });
 };
-
 
 // INITIALIZATION
 // --------------
