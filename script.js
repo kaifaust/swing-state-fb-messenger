@@ -7,7 +7,7 @@
 // CONFIGURATION OPTIONS:
 // ------------
 const MESSAGE_TEMPLATE =
-  "Hi! Are you living in {state}? I'm reaching out to friends who live there to promote voter participation this November. Are you registered to vote?";
+  "Hi! Are you living in {state}? I'm reaching out to friends who live in swing states to promote voter participation this November. Are you registered to vote?";
 
 const STATES = [
   "Pennsylvania",
