@@ -56,7 +56,7 @@ const STATES = [
 
 // Interpolates the state into the message template
 const getMessageTemplate = (state) => {
-  return MESSAGE_TEMPLATE.replace("{state}", state);
+  return MESSAGE_TEMPLATE.replace(/{state}/g, state);
 };
 
 // Finds elements on the page
