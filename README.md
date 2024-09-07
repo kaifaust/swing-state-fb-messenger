@@ -16,9 +16,10 @@ This script is designed to help you send voter participation messages to your fr
 3. Click on the **Console** tab.
 4. (Safari-only) Ensure "Enable User Gesture" is checked. (Chrome-only) In the console, type "allow pasting" and hit enter.
 5. Paste the script into the console and hit enter.
-5. Paste the script into the console and hit enter.
 6. Follow the on-screen instructions to send messages.
    - You can close the tab or refresh the page to stop the script at any time.
+
+![Setup Instructions](./setup-instructions.png)
 
 ## TIPS:
 - It works best in Safari, but it also works in Chrome.
