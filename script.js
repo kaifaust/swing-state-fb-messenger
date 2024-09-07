@@ -338,7 +338,7 @@ const createCopyButton = (text, onSuccess) => {
   const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
 
   // Change button text based on browser (Chrome-specific behavior)
-  button.innerText = isChrome ? "Copy to Clipboard" : "Continue";
+  button.innerText = isChrome ? "Start" : "Continue";
 
   button.style.marginTop = "10px";
   button.style.padding = "8px 20px";
@@ -354,9 +354,8 @@ const createCopyButton = (text, onSuccess) => {
     chatWarning = document.createElement("p");
     chatWarning.id = "chatWarning";
     chatWarning.style.margin = "5px 0";
-    chatWarning.style.fontSize = "11px";
-    chatWarning.style.fontWeight = "bold";
-    chatWarning.style.color = "grey";
+    chatWarning.style.fontSize = "14px";
+    chatWarning.style.color = "#444";
     chatWarning.style.display = "none"; // Hide by default
     chatWarning.innerText = "Close all chats to continue";
     statusContainer.appendChild(chatWarning);
@@ -402,8 +401,8 @@ const updateStatus = (message) => {
     statusText = document.createElement("p");
     statusText.id = "statusText";
     statusText.style.margin = "0";
-    statusText.style.fontSize = "14px";
-    statusText.style.color = "#555";
+    statusText.style.fontSize = "18px";
+    statusText.style.color = "#333";
     statusContainer.appendChild(statusText);
   }
   statusText.innerText = message;
@@ -419,9 +418,17 @@ const updateStatus = (message) => {
 let currentIndex = 0;
 
 const processState = async (state) => {
-  updateStatus(
-    `This script is about to search for friends in ${state} and autopopulate message templates... It will be up to you to actually send the messages. Ready?`
-  );
+  const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
+  if (isChrome) {
+    updateStatus(
+      `This script is about to copy a search query to your clipboard. Ready?`
+    );
+  } else {
+    updateStatus(
+      `This script is about to search for friends in ${state} and autopopulate message templates... It will be up to you to actually send the messages. Ready?`
+    );
+  }
+  
 
   createCopyButton(state, async () => {
     updateStatus(`Pasting text for ${state}...`);
